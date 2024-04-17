@@ -1,0 +1,5 @@
+package com.example.apimongo.repository;
+
+public interface MusicaRepository {
+
+}

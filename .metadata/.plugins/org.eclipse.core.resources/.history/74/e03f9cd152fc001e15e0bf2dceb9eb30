@@ -1,0 +1,129 @@
+package com.example.apimongo.controller;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.apimongo.model.Musica;
+import com.example.apimongo.service.MusicaService;
+
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequestMapping("/api/v1")
+@RequiredArgsConstructor
+public class MusicaController {
+	
+	private final MusicaService musicaService;
+	
+	@PostMapping("/musica")
+	public void save(@RequestBody Musica musica) {
+		musicaService.save(musica);		
+	}
+	
+	@GetMapping("/musica")
+	public List<Musica> findAll(){
+		return musicaService.findAll();
+	}
+	
+	@GetMapping("/musica/{id}")
+	public Musica findById(@PathVariable String id) {
+		return musicaService.findById(id).get();		
+	}
+	
+	@DeleteMapping("/musica/{id}")
+	public void deleteById(@PathVariable String id) {
+		musicaService.deleteById(id);		
+	}
+	
+	@PutMapping("/musica")
+	public void update(@RequestBody Musica musica) {
+		musicaService.save(musica);		
+	}
+	
+	
+	
+	@PatchMapping("/musica/{id}")
+    public ResponseEntity<?> partialUpdate(@PathVariable String id, @RequestBody Map<String, Object> updates) {
+        Optional<Musica> musicaOptional = musicaService.findById(id);
+        
+        if (!musicaOptional.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        Musica musica = musicaOptional.get();
+        
+        updates.forEach((key, value) -> {
+            // Actualizar solo los campos presentes en la solicitud
+            switch (key) {
+            case "id":
+                // No hacemos nada con el ID ya que no debería ser actualizado
+                break;
+            case "titulo":
+                musica.setTitulo((String) value);
+                break;
+            case "artista":
+                musica.setArtista((String) value);
+                break;
+            case "album":
+                musica.setAlbum((String) value);
+                break;
+            case "genero":
+                musica.setGenero((String) value);
+                break;
+            case "año":
+                musica.setAño((Integer) value);
+                break;
+            case "duracion":
+                musica.setDuracion((String) value);
+                break;
+        }
+        });
+        
+        musicaService.save(musica);
+        
+        return ResponseEntity.ok().build();
+    }
+	
+	@RequestMapping(value = "/musica", method = RequestMethod.HEAD)
+	public ResponseEntity<Void> headById(@PathVariable String id) {
+		Optional<Musica> musicaOptional = musicaService.findById(id);
+		if (musicaOptional.isPresent()) {
+			System.out.println("El recurso con ID " + id + " existe en la base de datos.");
+			return ResponseEntity.ok().build();
+		} else {
+			System.out.println("El recurso con ID " + id + " no existe en la base de datos.");
+			return ResponseEntity.notFound().build();
+		}
+	}
+	
+	@RequestMapping(value = "/musica", method = RequestMethod.OPTIONS)
+	public ResponseEntity<Void> options() {
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Allow", "GET, POST, PUT, DELETE, HEAD, OPTIONS");
+		return new ResponseEntity<>(headers, HttpStatus.OK);
+	}
+	
+
+	
+	
+	
+	
+	
+
+}

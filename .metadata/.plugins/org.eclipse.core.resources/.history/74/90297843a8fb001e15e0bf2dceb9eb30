@@ -1,0 +1,14 @@
+package com.example.apimongo.service;
+
+import org.springframework.stereotype.Service;
+
+import com.example.apimongo.repository.MusicaRepository;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class MusicaService {
+	private final MusicaRepository musicaRepository;
+
+}
